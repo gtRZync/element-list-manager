@@ -1,0 +1,16 @@
+apple
+banana
+cherry
+dog
+elephant
+The quick brown fox
+jumps over the lazy dog
+Hello, world!
+Python is great
+Good morning!
+Have a nice day
+Keep it simple
+Live and let live
+To be or not to be
+Time flies
+Stay positive
