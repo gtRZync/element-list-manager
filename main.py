@@ -106,7 +106,7 @@ def load_element_from_file(window: ctk.CTk, listbox: ListBox):
         
     def load_elements():
         elements: list[str] = []
-        size = listbox.size()
+        initial_size = listbox.size()
         try:
             filename.set(Path(selected_path.get()).name)
             with open(selected_path.get(), 'r') as file:
@@ -116,7 +116,7 @@ def load_element_from_file(window: ctk.CTk, listbox: ListBox):
             for element in elements:
                 listbox.add_to_list(ctk.StringVar(value=element))
             win.destroy() #type: ignore
-            if size == 0:
+            if initial_size == 0:
                 listbox.set_was_saved(True)
             CTkMessagebox(window, title="Success", message="Elements loaded successfully", fade_in_duration=1 ,button_color=btn_color, button_hover_color=btn_hover_color, button_text_color=btn_text_color)
         except FileNotFoundError as e:
