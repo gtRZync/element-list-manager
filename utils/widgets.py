@@ -1,4 +1,3 @@
-from tkinter.constants import NORMAL
 import customtkinter as ctk
 import tkinter as tk
 from CTkListbox import * # type: ignore
@@ -36,6 +35,7 @@ class ListBox(CTkListbox):
             )
         self.bind("<Button-1>", lambda event: self.focus_set())
         self.__schedule_save_check()
+        
     def __schedule_save_check(self):
         if self.master.winfo_exists():
             self.master.after(100, self.__on_change)
@@ -50,11 +50,10 @@ class ListBox(CTkListbox):
         
         Parameters
         ----------
-            listbox (CTkListbox): The CustomTkinter listbox widget containing the items to select from.
             item (ctk.StringVar): A variable that stores a string and automatically updates associated widgets when the value changes.
         See Also
         --------
-            delete: Delete selected elements from a CTkListbox.
+            remove: Delete selected elements from the current CTkListbox's object.
         """
         EMPTY = ""
         try:
@@ -85,13 +84,9 @@ class ListBox(CTkListbox):
         Brotato chips, this is a cool function to delete elements from a CTkListbox.
         It even takes into account that the indexes will change with each delete. I'm a dumb genius vro ✌🏻😭
 
-        Parameters
-        ----------
-            listbox (CTkListbox): The CustomTkinter listbox widget containing the items to select from.
-            
         See Also
         --------
-            add_to_list: add a string element to a CTkListbox
+            add_to_list: add a string element to the current CTkListbox's object
         """
         try:
             focused = self.curselection()
