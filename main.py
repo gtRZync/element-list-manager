@@ -297,7 +297,7 @@ if __name__ == "__main__":
         font=ctk.CTkFont(family="Inter", weight="bold", size=15)
         )
     entry.pack(padx=5, pady=15)
-    listbox.set_entry(entry)
+    listbox.set_placeholder_text(entry.placeholder)
     btns = ctk.CTkFrame(window, width=175, height=44, fg_color="transparent")
     btns.pack(padx=10, pady=10)
     add_btn = ctk.CTkButton(
