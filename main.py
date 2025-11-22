@@ -88,6 +88,7 @@ def load_element_from_file(window: ctk.CTk, listbox: ListBox):
     if win and win.winfo_exists():
         return
     else:
+        window.focus()
         win = ctk.CTkToplevel(window)
         win.title("Load List")
         center_window(win, Vector2(400, 150))
@@ -173,6 +174,7 @@ def prompt_for_element_saving(window: Window, listbox: ListBox, default_filename
         )
     message.focus_set()
     if message.get() == "yes":
+        #TODO: add retun to not quit if the process got discarded and not saved
         save_element_to_file(window, listbox, default_filename)
         time.sleep(1)
         window.quit()
@@ -186,7 +188,7 @@ def update_text():
     global lock
     global footer
     with lock:
-        if filename.get() != old_filename:
+        if filename.get() != old_filename and not sidebar.is_active():
             name.configure(text=f"Filename: {filename.get()}")
             old_filename = filename.get()
     footer.configure(text=f"Total Elements: {listbox.size()}")
@@ -208,11 +210,12 @@ def bind_key_to_listbox(btn: ctk.CTkButton, listbox:ListBox, key:str):
         if event.widget is listbox:
             if event.keysym.lower() == key.lower():
                 btn.invoke()
+            #logic is soo messed up lol gotta change it up
             if event.keysym.lower() == "up":
                 focused = listbox.curselection()
                 if type(focused) is tuple:
                         new_index = (focused[0] - 1) % listbox.end_num
-                        listbox.activate(focused[0]) #well, if this is not a good coder work then ion know 😼
+                        listbox.activate(focused[0]) #! well, if this is not a good coder work then ion know 😼
                         listbox.select(new_index)
                         listbox.see(new_index)
             if event.keysym.lower() == "down":
@@ -276,11 +279,11 @@ if __name__ == "__main__":
         corner_radius=8, 
         cursor="hand2", 
         image=IMG_sidebar, 
-        compound="right", 
+        compound=tk.RIGHT, 
         command=sidebar.show
         )
-    name.pack(padx=10, pady=10, anchor="nw")
-
+    name.pack(padx=10, pady=10, anchor=tk.NW)
+    sidebar.set_trigger(name)
     title = ctk.CTkLabel(window, text="ELEMENTS ", text_color="#1E1E1E",font=ctk.CTkFont(family="Inter", size=60, weight="bold"))
     title.pack()
     listbox = ListBox(window, width=int(field_width), heihgt=150, multiple_selection=True)
@@ -310,12 +313,12 @@ if __name__ == "__main__":
         hover_color=("#1E1E1E", "#A7A7A7"), 
         text_color=( "#F5F5F5", "#2C2C2C" ), 
         image=IMG_plus, 
-        compound="left", 
+        compound=tk.LEFT, 
         cursor="hand2",
         font=entry.cget("font"),
         command=lambda: listbox.add_to_list(text_entered)
         )
-    add_btn.pack(padx=50, pady=5, side="left")
+    add_btn.pack(padx=50, pady=5, side=tk.LEFT)
     rm_btn = ctk.CTkButton(
         btns, 
         width=170, 
@@ -326,12 +329,12 @@ if __name__ == "__main__":
         hover_color=("#1E1E1E", "#A7A7A7"), 
         text_color=( "#F5F5F5", "#2C2C2C" ), 
         image=IMG_delete, 
-        compound="left",
+        compound=tk.LEFT,
         cursor="hand2",
         font=entry.cget("font"),
         command=listbox.remove
         )
-    rm_btn.pack(padx=50, pady=5, side="left")
+    rm_btn.pack(padx=50, pady=5, side=tk.LEFT)
     bind_key_to_entry(add_btn, entry, "return")
     bind_key_to_listbox(rm_btn, listbox, "delete")
     footer = ctk.CTkLabel(
@@ -340,6 +343,6 @@ if __name__ == "__main__":
         font=ctk.CTkFont(family="Inter", size=15, weight="bold", underline=True),
         text_color=( "#1E1E1E", "#F5F5F5" )
         )
-    footer.pack(side="bottom", anchor="e", padx=10, pady=5)
+    footer.pack(side=tk.BOTTOM, anchor=tk.E, padx=10, pady=5)
 
     window.mainloop()
