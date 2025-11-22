@@ -31,7 +31,7 @@ class ListBox(CTkListbox):
             border_width=2,
             text_color=("#F3F3F3", "#1E1E1E"),  # type: ignore
             #? highlight_color="cornflower blue", maybe?
-            font=ctk.CTkFont(family="Inter", weight="normal", size=15)  # type: ignore
+            font=ctk.CTkFont(family="Inter", weight=tk.NORMAL, size=15)  # type: ignore
             )
         self.bind("<Button-1>", lambda event: self.focus_set())
         self.__schedule_save_check()
@@ -132,9 +132,12 @@ class ListBox(CTkListbox):
         self.placeholder_text = placeholder_text
 
 class SideBar(ctk.CTkFrame):
-    def __init__(self, root: ctk.CTk, filename: ctk.StringVar):
+    def __init__(self, root: ctk.CTk, filename: ctk.StringVar, trigger: ctk.CTkButton | None = None):
         self.root = root
         self.filename = filename
+        self.__active = False
+        self.trigger = trigger
+        self.trigger_config = None
         self.scale = root._get_window_scaling()
         self.width = self.__scale_down(root.winfo_width()) 
         self.height = self.__scale_down(root.winfo_height()) 
@@ -147,7 +150,12 @@ class SideBar(ctk.CTkFrame):
             "btn_hover_color": ("#1E1E1E", "#A7A7A7"), 
             "sidebar" : ( "#DADADA", "#3F3F3F"),
             }
-        super().__init__(root, width=self.width, height=self.height, fg_color=self.__mode_color.get("sidebar"))
+        super().__init__(
+            root, 
+            width=self.width, 
+            height=self.height, 
+            fg_color=self.__mode_color.get("sidebar")
+            )
         self.pack_propagate(False)
         self.IMG_SIDEBAR = ctk.CTkImage(
             light_image=Image.open(ASSETS_DIR / "Sidebar_L.png"),
@@ -164,7 +172,11 @@ class SideBar(ctk.CTkFrame):
             )
         self.icon_width = self.IMG_SIDEBAR.cget("size")[0] 
         self.icon = ctk.CTkButton(self, width=self.icon_width, image=self.IMG_SIDEBAR, text="", fg_color="transparent", hover_color=("#A7A7A7","#2C2C2C"), corner_radius=8, command=self.hide)
-        self.icon.pack(padx=10, pady=10, anchor="ne")
+        self.icon.pack(padx=10, pady=10, anchor=tk.NE)
+        self.__NAME_LABEL_MAX_SIZE = 0
+        """
+        Unused for now
+        """
         self.name_label = ctk.CTkEntry(self, 
                                        width=150, 
                                        height=20, 
@@ -172,15 +184,15 @@ class SideBar(ctk.CTkFrame):
                                        border_color="cornflower blue",
                                        fg_color="transparent",
                                        textvariable=self.filename,
-                                       justify="center",
+                                       justify=tk.CENTER,
                                        font=ctk.CTkFont(
                                            family="Inter", 
-                                           weight="normal", 
+                                           weight=tk.NORMAL, 
                                            underline=True, 
                                            size=20
                                            )
                                        )
-        self.name_label.pack( ipady=5, anchor="center")
+        self.name_label.pack( ipady=5, anchor=tk.CENTER)
         self.name_label.bind("<FocusIn>", lambda event: self.__name_label_focus_in())
         self.name_label.bind("<FocusOut>", lambda event: self.__name_label_focus_out())
         self.name_label.bind("<Enter>", lambda event: self.__name_label_hovered())
@@ -199,7 +211,7 @@ class SideBar(ctk.CTkFrame):
             font=ctk.CTkFont(family="Inter", weight="bold", size=15),
             command=self.__set_mode
             )
-        self.mode.pack(padx=10, pady=10, side="bottom", anchor="sw")
+        self.mode.pack(padx=10, pady=10, side=tk.BOTTOM, anchor=tk.SW)
         self.space = ctk.CTkFrame(self, height=self.height //5, fg_color="transparent")
         self.space.pack()
         self.save_btn = ctk.CTkButton(
@@ -235,6 +247,9 @@ class SideBar(ctk.CTkFrame):
         self.space.bind("<Button-1>", lambda event: self.space.focus())
         self.mode.bind("<Button-1>", lambda event: self.mode.focus())
         self.name_label._is_focused = False  #type: ignore
+        
+    def set_trigger(self, trigger: ctk.CTkButton):
+        self.trigger = trigger
         
     def __scale_down(self, x: int | float):
         return int(x // self.scale)
@@ -294,18 +309,63 @@ class SideBar(ctk.CTkFrame):
         self.load_btn.configure(command=command)
         
     def hide(self):
+        self.__active = False
+        self.master.focus()
+        if self.trigger:
+            options = ['border_width', 'text_color', 'fg_color', 'hover_color', 'text', 'cursor']
+            if self.trigger_config:
+                config = self.trigger_config.copy()
+                config.pop('master_fg_color')
+                if self.name_label.get().lower() != "":
+                    config['text'] = f"Filename: {Path(self.name_label.get()).with_suffix('.txt').name}" #?adding suffix .txt to prevent the delay of .txt being added by self.__check_filename, why ? Cuz I am the one coding it duuh
+                for option in options:
+                    value = config.get(option)
+                    self.trigger.configure(False,**{option: value})
         self.place_forget()
             
     def show(self):
         """
         I'm not removing the button from the screen cuz i'm lazy,
-        but it gets hidden by the sidebar lol 😹
+        but it gets hidden by the sidebar lol 😹 
+        
+        Not so fast
+        -----------
+        turns out not when the file have a long ass name it show still 🦧
+        
+        Final Note
+        ----------
+        Works fine now even though i had to write some questionnable logic 😹
+        
+        Lord why am i not using `grid` geometry manager 😭 
         """
-        self.place(x=0, y=0)
+        self.__active = True
+        if self.trigger:
+            options = ['border_width', 'text_color', 'fg_color', 'hover_color', 'text', 'cursor']
+            if not self.trigger_config:
+                self.trigger_config = {}
+                for option in options:
+                    self.trigger_config[option] = self.trigger.cget(option)
+                self.trigger_config['master_fg_color'] = self.master.cget('fg_color')
+                self.trigger_config_hide = {
+                    'border_width': 0,
+                    'text_color': self.trigger_config.get("master_fg_color"),
+                    'fg_color': self.trigger_config.get("master_fg_color"),  
+                    'hover_color': self.trigger_config.get("master_fg_color"),
+                    'text': '',
+                    'cursor': 'arrow',
+                }
+            for option in options:
+                value = self.trigger_config_hide.get(option)
+                self.trigger.configure(False,**{option: value})
+            
+        self.place(x=0, y=0) #TODO: add sidebar show and hide anim w/ lock to avoid spams (maybe deactivate buttons during animations)
         self.lift()
             
     def __set_mode(self, mode):
         ctk.set_appearance_mode(mode)
+    
+    def is_active(self):
+        return self.__active
         
 class TypingPlaceholderEntry(ctk.CTkEntry):
     def __init__(
