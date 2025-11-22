@@ -13,12 +13,12 @@ DATA_DIR:Path   = Path('data')
 
 
 class ListBox(CTkListbox):
-    def __init__(self, root, width: int = 140, heihgt:int = 100, multiple_selection: bool = False, entry: "TypingPlaceholderEntry  | None"= None):
+    def __init__(self, root, width: int = 140, heihgt:int = 100, multiple_selection: bool = False, placeholder_text: str | None = None):
         self.root = root
         self.width = width
         self.height = heihgt
         self.mode_color = ("#2C2C2C", "#FFFFFF")
-        self.entry = entry
+        self.placeholder_text = placeholder_text
         self.__was_saved:bool = False
         self.__size_after_save:int = -1
         self.lock = threading.Lock()
@@ -57,8 +57,9 @@ class ListBox(CTkListbox):
         """
         EMPTY = ""
         try:
-            if item.get().strip() == EMPTY or self.entry and item.get().strip() == self.entry.placeholder:
-                item.set(EMPTY if self.entry is None else self.entry.placeholder)
+            if item.get().strip() == EMPTY or self.placeholder_text and item.get().strip() == self.placeholder_text:
+                if item.get() != self.placeholder_text:
+                    item.set(EMPTY)
                 raise AttributeError()
             self.insert(tk.END, item.get())
             item.set(EMPTY)
@@ -111,9 +112,6 @@ class ListBox(CTkListbox):
             print(e)
             return
         
-    def set_entry(self, entry: "TypingPlaceholderEntry"):
-        self.entry = entry
-        
     def set_was_saved(self, saved: bool):
         with self.lock:
             self.__was_saved = saved
@@ -129,6 +127,9 @@ class ListBox(CTkListbox):
     def modified_after_save(self):
         with self.lock:
             return not self.__was_saved
+        
+    def set_placeholder_text(self, placeholder_text: str):
+        self.placeholder_text = placeholder_text
 
 class SideBar(ctk.CTkFrame):
     def __init__(self, root: ctk.CTk, filename: ctk.StringVar):
