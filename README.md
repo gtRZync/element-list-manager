@@ -1,4 +1,6 @@
-# **Element List Manager (CTk HMI Project)**
+<h1 align="center" style="font-weight:bold">
+Element List Manager (CTk HMI Project)
+</h1>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/language-Python-blue) 
@@ -9,8 +11,6 @@
 
 A lightweight, keyboard-friendly list management app built with **CustomTkinter (CTk)** for my HMI class.
 Features full list editing, file persistence, focus-aware input handling, and dynamic theming (Light/Dark/System).
-
----
 
 ## **Features**
 
@@ -49,19 +49,27 @@ Features full list editing, file persistence, focus-aware input handling, and dy
 * Clean layout using CTk widgets
 * No blocking threads (`after` method used for background updates and checks)
 
----
 
 ### Background Save Check
 
 The app includes a background method that continuously monitors whether any unsaved content exists. Upon attempting to quit the app, it will prompt the user to save their work if necessary.
 
----
 
 ## Screenshots
 
-(*soon*)
+| Dark Mode                              | Light Mode                               |
+|----------------------------------------|------------------------------------------|
+| ![Dark Mode](assets/img/dark-mode.png) | ![Light Mode](assets/img/light-mode.png) |
 
----
+| Dark Mode sidebar                              | Light Mode sidebar                               |
+|------------------------------------------------|--------------------------------------------------|
+| ![Dark Mode](assets/img/dark-mode-sidebar.png) | ![Light Mode](assets/img/light-mode-sidebar.png) |
+
+
+## Automatic file rename sync (inspired by Figma's)
+<p align="center">
+  <img src="assets/img/automatic-rename-sync.gif" alt="Automatic rename sync" />
+</p>
 
 ## Installation
 
