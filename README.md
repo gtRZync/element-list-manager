@@ -93,7 +93,7 @@ python main.py
 
 ## 📄 License
 
-MIT License 
+[MIT License](LICENSE) 
 
 ---
 
